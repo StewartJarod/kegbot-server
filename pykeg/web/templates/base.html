@@ -6,17 +6,6 @@
 
 {% block css %}
 {{ block.super }}
-<style>
-  body {
-{% if kbsite %}{% if kbsite.background_image %}
-    background-image: url({{kbsite.background_image.image.url}});
-{% else %}
-    background-image: url({{ STATIC_URL }}images/background.png);
-{% endif %} {% endif %}
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-  }
-</style>
 
 {% endblock css %}
 
