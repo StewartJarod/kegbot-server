@@ -43,7 +43,7 @@ def build_message(to_address, template_name, context_dict):
     body_plain += '\n\n' + footer_plain
     body_html += '\n\n' + footer_html
     headers = {
-        'x-smptapi': {
+        "x-smptapi": {
             "filters": {
                 "templates": {
                     "settings": {
