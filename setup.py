@@ -40,8 +40,6 @@ DEPENDENCIES = [
   'requests == 2.2.1',
   'tweepy == 2.2',
   'jsonfield == 0.9.20',
-  'Magic-file-extensions==0.2',
-  'git-remote-helpers==0.1.0',
   'sendgrid==0.5.1',
 ]
 
