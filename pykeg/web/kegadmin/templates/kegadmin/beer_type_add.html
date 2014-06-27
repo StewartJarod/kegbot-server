@@ -24,7 +24,7 @@
     {% for brewery in beer.breweries %}
     <li class="span3">
       <div class="thumbnail">
-        <img src="{{ brewery.images.icon }}">
+        <img src="{{ beer.labels.large }}" width=300>
 
         <div class="caption">
           <h3>{{ beer.name }}</h3>
@@ -33,7 +33,7 @@
           <form method="post">
             {% csrf_token %}
             <input type="hidden" name="form_type" value="auto">
-            <input type="hidden" name="image_url" value="{{ brewery.images.large }}" />
+            <input type="hidden" name="image_url" value="{{ beer.labels.large }}" />
             <input type="hidden" name="name" value="{{ beer.name }}" />
             <input type="hidden" name="description" value="{{ beer.description }}" />
             <input type="hidden" name="style" value="{{ beer.style.name }}" />
