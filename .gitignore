@@ -3,7 +3,9 @@
 *.pyc
 *.egg
 *.egg-info
+*.swp
 .coverage
+venv/
 
 ### docs
 docs/build
