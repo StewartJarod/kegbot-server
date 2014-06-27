@@ -36,15 +36,17 @@
       {% else %}
         <div class="row-fluid">
          {% if keg.type.abv_percent %} <div class="span4">{{ keg.type.abv_percent }} ABV</div> {% endif %}
-         {% if keg.type.abv_percent %} <div class="span4">
-            {% if tap.temperature_sensor %}
-            {% with tap.temperature_sensor.LastLog as temp %}
-            {% if temp %}
-            &middot; {% temperature temp.temp %}
-            {% endif %}
-            {% endwith %}
-            {% endif %}
-        </div> {% endif %}
+         {% if keg.type.abv_percent %}
+            <div class="span4">
+                {% if tap.temperature_sensor %}
+                {% with tap.temperature_sensor.LastLog as temp %}
+                {% if temp %}
+                  {% temperature temp.temp %}
+                {% endif %}
+                {% endwith %}
+                {% endif %}
+            </div>
+         {% endif %}
 
         </div>
           {% progress_bar keg.percent_full %}
