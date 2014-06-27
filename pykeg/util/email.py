@@ -42,7 +42,18 @@ def build_message(to_address, template_name, context_dict):
     subject, body_plain, body_html, footer_plain, footer_html = parts
     body_plain += '\n\n' + footer_plain
     body_html += '\n\n' + footer_html
+    headers = {
+        "filters": {
+            "templates": {
+                "settings": {
+                    "enabled": 1,
+                    "template_id": "95c0742c-3243-4537-959d-2e0937e2b35b"
+                }
+            }
+        }
+    }
 
-    message = EmailMultiAlternatives(subject, body_plain, from_address, [to_address])
+    message = EmailMultiAlternatives(subject, body_plain, from_address, [to_address], headers)
     message.attach_alternative(body_html, "text/html")
+
     return message
