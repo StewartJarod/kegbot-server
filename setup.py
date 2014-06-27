@@ -40,6 +40,8 @@ DEPENDENCIES = [
   'requests == 2.2.1',
   'tweepy == 2.2',
   'jsonfield == 0.9.20',
+
+  'twilio',
 ]
 
 def setup_package():
