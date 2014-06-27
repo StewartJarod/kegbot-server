@@ -46,6 +46,9 @@ ATTR_NEED_AUTH = 'api_auth_required'
 def is_api_request(request):
     return request.path.startswith('/api')
 
+def is_twilio_request(request):
+    return request.path.startswith('/api/twilio')
+
 
 def needs_auth(viewfunc):
     return getattr(viewfunc, ATTR_NEED_AUTH, False)

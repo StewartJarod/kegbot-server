@@ -20,6 +20,8 @@
 
 import datetime
 import logging
+import re
+import os
 from functools import wraps
 
 from django.contrib.auth import login as auth_login
@@ -28,6 +30,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.utils import timezone
 
 from django.http import Http404
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
@@ -47,6 +50,8 @@ from pykeg.web.kegadmin.forms import ControllerForm
 from pykeg.web.kegadmin.forms import FlowToggleForm
 from pykeg.web.kegadmin.forms import NewFlowMeterForm
 from pykeg.web.kegadmin.forms import UpdateFlowMeterForm
+
+import twilio.twiml
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -377,6 +382,43 @@ def get_keg_stats(request, keg_id):
 
 def get_system_stats(request):
     return models.KegbotSite.get().get_stats()
+
+@require_http_methods(["POST"])
+@csrf_exempt
+def twilio_sms(request):
+    sms_to = request.POST['To']
+    sms_from = request.POST['From']
+    sms_body = request.POST['Body']
+
+    # Compose response
+    active_kegs = [keg_tap for keg_tap in models.KegTap.objects.all() if keg_tap.current_keg]
+    tap_count = len(active_kegs)
+    beer_suffix = '' if tap_count == 1 else 's'
+
+    resp = twilio.twiml.Response()
+    if re.search("^list$", sms_body, re.I):
+        for keg_tap in active_kegs:
+            resp.message("{0}: {1}".format(keg_tap.name, keg_tap.current_keg.type.name))
+
+    elif re.search("beer", sms_body, re.I):
+        resp.message("Great, we have {0} beer{1} on tap! Reply 'LIST' to recieve information about them.".format(tap_count, beer_suffix))
+    else:
+        resp.message("Hmm, you didn't say the magic word...")
+    return HttpResponse(str(resp), mimetype='text/xml', status=200)
+
+@require_http_methods(["POST"])
+@csrf_exempt
+def twilio_call(request):
+    active_kegs = [keg_tap for keg_tap in models.KegTap.objects.all() if keg_tap.current_keg]
+    tap_count = len(active_kegs)
+    beer_suffix = '' if tap_count == 1 else 's'
+
+    resp = twilio.twiml.Response()
+    resp.say('Welcome to the Kick Ass SendGrid Kegerator!')
+    resp.say('We have {0} beer{1} on tap!'.format(tap_count, beer_suffix))
+    for keg_tap in active_kegs:
+        resp.message("{0} on {1}".format(keg_tap.current_keg.type.name, keg_tap.name))
+    return HttpResponse(str(resp), mimetype='text/xml', status=200)
 
 
 @require_http_methods(['GET', 'POST'])

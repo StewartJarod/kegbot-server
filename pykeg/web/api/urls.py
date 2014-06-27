@@ -98,6 +98,9 @@ urlpatterns = patterns('pykeg.web.api.views',
 
     url(r'^stats/?$', 'get_system_stats'),
 
+    url(r'^twilio/sms?$', 'twilio_sms'),
+    url(r'^twilio/call?$', 'twilio_call'),
+
     ### Deprecated endpoints
 
     url(r'^sound-events/?$', 'all_sound_events'),

@@ -85,7 +85,7 @@ class ApiResponseMiddleware:
         return None
 
     def process_response(self, request, response):
-        if not util.is_api_request(request):
+        if not util.is_api_request(request) or util.is_twilio_request(request):
             return response
 
         if not isinstance(response, HttpResponse):
