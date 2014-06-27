@@ -20,6 +20,8 @@
 
 import datetime
 import os
+import urllib2
+from urlparse import urlparse
 import zipfile
 
 import redis
@@ -30,7 +32,9 @@ from django.conf import settings
 from django.contrib import messages
 from pykeg.web.decorators import staff_member_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.files import File
 from django.core.files.storage import get_storage_class
+from django.core.files.temp import NamedTemporaryFile
 from django.db.models import Q
 from django.http import Http404
 from django.http import HttpResponse
@@ -38,6 +42,7 @@ from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 
@@ -806,6 +811,19 @@ def beverage_add(request):
             if new_image:
                 pic = models.Picture.objects.create()
                 pic.image.save(new_image.name, new_image)
+                pic.save()
+                btype.picture = pic
+                btype.save()
+            elif form.data['image_url']:
+                image_url = form.data['image_url']
+                image_name = urlparse(image_url).path.split('/')[-1]
+                
+                # Create temporary image from url, then save
+                image_content = urllib2.urlopen(image_url).read()
+                image_temp = SimpleUploadedFile(name=image_name, content=image_content, content_type='image/jpg')
+
+                pic = models.Picture.objects.create()
+                pic.image.save(image_name, image_temp)
                 pic.save()
                 btype.picture = pic
                 btype.save()
