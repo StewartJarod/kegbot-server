@@ -498,7 +498,7 @@ class KegbotBackend(object):
         return keg
 
     @transaction.atomic
-    def create_keg(self, beverage=None, keg_type=keg_sizes.HALF_BARREL,
+    def create_keg(self, beverage=None, keg_type=keg_sizes.CORNY,
             full_volume_ml=None, beverage_name=None, beverage_type=None,
             producer_name=None, style_name=None, notes=None, description=None):
         """Adds a new keg to the keg room (queue).

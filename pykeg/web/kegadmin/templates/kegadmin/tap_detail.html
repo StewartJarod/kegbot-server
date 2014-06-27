@@ -8,10 +8,10 @@
 {% block kegadmin-main %}
 <ul class="nav nav-tabs" id="tapDetails">
     {% if not current_keg %}
-    <li><a href="#1" data-toggle="tab">Create New Keg</a></li>
-      {% if available_kegs %}
-      <li><a href="#2" data-toggle="tab">Attach Untapped Keg</a></li>
-      {% endif %}
+    {% if available_kegs %}
+    <li><a href="#2" data-toggle="tab">Attach Untapped Keg</a></li>
+    {% endif %}
+  <li><a href="#1" data-toggle="tab">Create New Keg</a></li>
     {% else %}
     <li><a href="#3" data-toggle="tab">Current Keg</a></li>
     <li><a href="#4" data-toggle="tab">Add Drink</a></li>

@@ -631,7 +631,7 @@ class Keg(models.Model):
         help_text='Beverage in this Keg.')
     keg_type = models.CharField(max_length=32,
         choices=keg_sizes.DESCRIPTIONS.items(),
-        default=keg_sizes.HALF_BARREL,
+        default=keg_sizes.CORNY,
         help_text='Keg container type, used to initialize keg\'s full volume')
     served_volume_ml = models.FloatField(default=0, editable=False,
         help_text='Computed served volume.')

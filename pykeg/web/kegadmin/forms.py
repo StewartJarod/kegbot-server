@@ -12,6 +12,7 @@ from pykeg.core import models
 
 ALL_TAPS = models.KegTap.objects.all()
 ALL_KEGS = models.Keg.objects.all()
+ALL_BEVERAGES = models.Beverage.objects.all()
 ALL_METERS = models.FlowMeter.objects.all()
 ALL_TOGGLES = models.FlowToggle.objects.all()
 ALL_THERMOS = models.ThermoSensor.objects.all()
@@ -193,36 +194,36 @@ class DeleteTapForm(forms.Form):
 
 class KegForm(forms.Form):
     keg_size = forms.ChoiceField(choices=keg_sizes.CHOICES,
-        initial=keg_sizes.HALF_BARREL,
+        initial=keg_sizes.CORNY,
         required=True)
 
     initial_volume = forms.FloatField(label='Initial Volume (Liters)', initial=0.0,
         required=False, help_text='Keg\'s Initial Volume in Liters')
 
-    beer_name = forms.CharField(required=False)  # legacy
-    brewer_name = forms.CharField(required=False)  # legacy
+    # beer_name = forms.CharField(required=False)  # legacy
+    # brewer_name = forms.CharField(required=False)  # legacy
 
-    beverage_name = forms.CharField(label='Beer Name', required=False)
-    beverage_id = forms.CharField(widget=forms.HiddenInput(), required=False)
-    producer_name = forms.CharField(label='Brewer', required=False)
-    producer_id = forms.CharField(widget=forms.HiddenInput(), required=False)
-    style_name = forms.CharField(required=True, label='Style',
-      help_text='Example: Pale Ale, Stout, etc.')
-
-    description = forms.CharField(max_length=256, label='Description',
-        widget=forms.Textarea(), required=False,
-        help_text='User-visible description of the Keg.')
-    notes = forms.CharField(label='Notes', required=False, widget=forms.Textarea(),
-        help_text='Private notes about this keg, viewable only by admins.')
+    beverage_name = forms.ModelChoiceField(queryset=ALL_BEVERAGES)
+    # beverage_id = forms.CharField(widget=forms.HiddenInput(), required=False)
+    # producer_name = forms.ModelChoiceField(label='Brewer', required=False)
+    # producer_id = forms.CharField(widget=forms.HiddenInput(), required=False)
+    # style_name = forms.CharField(required=True, label='Style',
+    #   help_text='Example: Pale Ale, Stout, etc.')
+    #
+    # description = forms.CharField(max_length=256, label='Description',
+    #     widget=forms.Textarea(), required=False,
+    #     help_text='User-visible description of the Keg.')
+    # notes = forms.CharField(label='Notes', required=False, widget=forms.Textarea(),
+    #     help_text='Private notes about this keg, viewable only by admins.')
 
     helper = FormHelper()
     helper.form_class = 'form-horizontal beer-select'
     helper.layout = Layout(
         Field('beverage_name', css_class='input-xlarge'),
-        Field('beverage_id', type='hidden'),
-        Field('producer_name', css_class='input-xlarge'),
-        Field('producer_id', type='hidden'),
-        Field('style_name', css_class='input-xlarge'),
+        # Field('beverage_id', type='hidden'),
+        # Field('producer_name', css_class='input-xlarge'),
+        # Field('producer_id', type='hidden'),
+        # Field('style_name', css_class='input-xlarge'),
         Field('keg_size', css_class='input-xlarge'),
         Div(
             Field('initial_volume', css_class='input-volume', type='hidden'),
@@ -264,9 +265,7 @@ class KegForm(forms.Form):
         # TODO(mikey): Support non-beer beverage types.
         cd = self.cleaned_data
         b = get_kegbot_backend()
-        keg = b.create_keg(beverage_name=cd['beverage_name'], producer_name=cd['producer_name'],
-            beverage_type='beer', style_name=cd['style_name'], keg_type=cd['keg_size'],
-            full_volume_ml=full_volume_ml, notes=cd['notes'], description=cd['description'])
+        keg = b.create_keg(beverage=cd['beverage_name'], keg_type=cd['keg_size'])
         return keg
 
 
