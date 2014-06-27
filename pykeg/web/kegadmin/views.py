@@ -51,6 +51,10 @@ from pykeg.core import models
 from pykeg.logging.handlers import RedisListHandler
 from pykeg.util.email import build_message
 
+from pykeg.util.brewerydb import *
+# TODO Move to env var
+BreweryDb.configure('28c17ad18e9ab6b61b4093faf3fc46d3')
+
 from pykeg.web.kegadmin import forms
 
 import logging
@@ -757,6 +761,45 @@ def beverage_add(request):
     form = forms.BeverageForm()
     if request.method == 'POST':
         form = forms.BeverageForm(request.POST)
+
+        # If search then look for the name and re-render add page with those beers displayed
+        if 'form_type' in form.data and form.data['form_type'] == 'search':
+            name = form.data['name']
+            # WARN External API call
+            result = BreweryDb.search({'type': 'beer', 'q': name, 'withBreweries': 'Y', 'withSocialAccounts': 'Y'})
+            matched = result['data'] if 'data' in result else []
+
+            for beer in matched:
+                for brewery in beer['breweries']:
+                    if len(brewery['locations'][0]) > 0:
+                        brewery['main_location'] = brewery['locations'][0]
+
+            context = RequestContext(request)
+            context['beer_type'] = 'new'
+            context['form'] = form
+            context['matched'] = matched
+            context['matched_length'] = len(matched)
+            return render_to_response('kegadmin/beer_type_add.html', context_instance=context)
+
+        # If it was auto-filled, find/create producer_name first
+        # TODO Is there a better way to do this data manipulation.
+        if 'form_type' in form.data and form.data['form_type'] == 'auto':
+            producer_name = form.data['brewery_name']
+            producer_defaults = {
+                'description': form.data['brewery_description'],
+                'origin_city': form.data['brewery_city'],
+                'origin_state': form.data['brewery_state'],
+                'country': form.data['brewery_country'],
+                'url': form.data['brewery_website'],
+            }
+            print 'Finding or creating brewer %s'.format(producer_name)
+            producer, _created = models.BeverageProducer.objects.get_or_create(name=producer_name,
+                                                                               defaults=producer_defaults)
+            # HACK Need to copy form data, update, re-assign
+            new_data = form.data.copy()
+            new_data['producer'] = producer.id
+            form.data = new_data
+
         if form.is_valid():
             btype = form.save()
             new_image = request.FILES.get('new_image')
