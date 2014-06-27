@@ -764,27 +764,30 @@ def beverage_detail(request, beer_id):
 def beverage_add(request):
 
     form = forms.BeverageForm()
+
+    # If search then look for the name and re-render add page with those beers
+    # displayed
+    query = request.GET.get('query', None)
+    if request.method == 'GET' and query:
+        # WARN External API call
+        result = BreweryDb.search({'type': 'beer', 'q': query, 'withBreweries': 'Y', 'withSocialAccounts': 'Y'})
+        matched = result['data'] if 'data' in result else []
+
+        for beer in matched:
+            for brewery in beer['breweries']:
+                if len(brewery['locations'][0]) > 0:
+                    brewery['main_location'] = brewery['locations'][0]
+
+        context = RequestContext(request)
+        context['beer_type'] = 'new'
+        context['form'] = form
+        context['matched'] = matched
+        context['matched_length'] = len(matched)
+        return render_to_response('kegadmin/beer_type_add.html', context_instance=context)
+
+    # If POST then process data
     if request.method == 'POST':
         form = forms.BeverageForm(request.POST)
-
-        # If search then look for the name and re-render add page with those beers displayed
-        if 'form_type' in form.data and form.data['form_type'] == 'search':
-            name = form.data['name']
-            # WARN External API call
-            result = BreweryDb.search({'type': 'beer', 'q': name, 'withBreweries': 'Y', 'withSocialAccounts': 'Y'})
-            matched = result['data'] if 'data' in result else []
-
-            for beer in matched:
-                for brewery in beer['breweries']:
-                    if len(brewery['locations'][0]) > 0:
-                        brewery['main_location'] = brewery['locations'][0]
-
-            context = RequestContext(request)
-            context['beer_type'] = 'new'
-            context['form'] = form
-            context['matched'] = matched
-            context['matched_length'] = len(matched)
-            return render_to_response('kegadmin/beer_type_add.html', context_instance=context)
 
         # If it was auto-filled, find/create producer_name first
         # TODO Is there a better way to do this data manipulation.
@@ -817,7 +820,7 @@ def beverage_add(request):
             elif form.data['image_url']:
                 image_url = form.data['image_url']
                 image_name = urlparse(image_url).path.split('/')[-1]
-                
+
                 # Create temporary image from url, then save
                 image_content = urllib2.urlopen(image_url).read()
                 image_temp = SimpleUploadedFile(name=image_name, content=image_content, content_type='image/jpg')

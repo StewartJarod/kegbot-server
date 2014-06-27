@@ -9,10 +9,8 @@
 <h2>Add Beer Type</h2>
 <h3>Search for a beer</h3>
 <!-- TODO: Replace with more Django like form //-->
-<form class="form-search" method="post">
-  {% csrf_token %}
-  <input type="hidden" name="form_type" value="search">
-  <input type="text" name="name" class="input-medium search-query">
+<form class="form-search" method="get">
+  <input type="text" name="query" class="input-medium search-query">
   <button type="submit" class="btn">Search</button>
 </form>
 {% if matched_length == 0 %}
