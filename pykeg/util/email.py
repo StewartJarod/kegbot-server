@@ -17,7 +17,7 @@
 # along with Pykeg.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.conf import settings
-from django.core.mail import EmailMultiAlternatives
+from django.core.mail import EmailMessage
 from django.template import Context
 from django.template.loader import get_template
 
@@ -53,7 +53,6 @@ def build_message(to_address, template_name, context_dict):
         }
     }
 
-    message = EmailMultiAlternatives(subject, body_plain, from_address, [to_address], headers)
-    message.attach_alternative(body_html, "text/html")
+    message = EmailMessage(subject, body_html, from_address, [to_address], headers)
 
     return message
