@@ -43,16 +43,19 @@ def build_message(to_address, template_name, context_dict):
     body_plain += '\n\n' + footer_plain
     body_html += '\n\n' + footer_html
     headers = {
-        "filters": {
-            "templates": {
-                "settings": {
-                    "enabled": 1,
-                    "template_id": "95c0742c-3243-4537-959d-2e0937e2b35b"
+        'x-smptapi': {
+            "filters": {
+                "templates": {
+                    "settings": {
+                        "enabled": 1,
+                        "template_id": "95c0742c-3243-4537-959d-2e0937e2b35b"
+                    }
                 }
             }
         }
     }
 
     message = EmailMessage(subject, body_html, from_address, [to_address], headers)
+    message.content_subtype = "html"
 
     return message
