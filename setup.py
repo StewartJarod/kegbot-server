@@ -40,7 +40,6 @@ DEPENDENCIES = [
   'requests == 2.2.1',
   'tweepy == 2.2',
   'jsonfield == 0.9.20',
-  'sendgrid==0.5.1',
 ]
 
 def setup_package():
