@@ -22,7 +22,6 @@ from django.template import Context
 from django.template.loader import get_template
 
 import logging
-import sendgrid
 
 logger = logging.getLogger('util')
 
@@ -56,19 +55,7 @@ def build_message(to_address, template_name, context_dict):
         }
     }
 
-    sg = sendgrid.SendGridClient(os.environ['SENDGRID_USER'], os.environ['SENDGRID_PASSWORD'])
-
-    message = sendgrid.Mail()
-    message.add_to(to_address)
-    message.set_subject(subject)
-    message.set_html(body_html)
-    message.set_text(body_plain)
-    message.set_from(from_address)
-    message.add_filter("templates", "enabled", 1)
-    message.add_filter("templates", "template_id", "95c0742c-3243-4537-959d-2e0937e2b35b")
-    status, msg = sg.send(message)
-
-    #message = EmailMessage(subject, body_html, from_address, [to_address], headers)
-    #message.content_subtype = "html"
+    message = EmailMessage(subject, body_html, from_address, [to_address], headers)
+    message.content_subtype = "html"
 
     return message
